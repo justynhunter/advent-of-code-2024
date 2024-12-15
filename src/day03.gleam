@@ -5,51 +5,41 @@ import gleam/option
 import gleam/regexp
 import gleam/string
 
-fn calc_mul(submatches) {
-  submatches
+fn calc_mul(match: regexp.Match) {
+  match.submatches
   |> option.values
   |> list.filter_map(int.parse(_))
   |> list.fold(1, int.multiply)
 }
 
-pub fn get_muls(line) {
-  let assert Ok(reg) = regexp.from_string("mul\\(([0-9]{1,3}),([0-9]{1,3})\\)")
-  regexp.scan(reg, line)
-  |> list.map(fn(match) { calc_mul(match.submatches) })
-}
-
-fn parse_matches(matches: List(regexp.Match), in_do, total) {
-  case matches {
-    [match, ..tail] -> {
-      case in_do, match.content {
-        _, "don't()" -> parse_matches(tail, False, total)
-        _, "do()" -> parse_matches(tail, True, total)
-        False, _ -> parse_matches(tail, False, total)
-        True, _ -> parse_matches(tail, True, total + calc_mul(match.submatches))
-      }
-    }
-    [] -> total
-  }
-}
-
-pub fn get_do_muls(line) {
-  let assert Ok(reg) =
-    regexp.from_string("mul\\((\\d{1,3}),(\\d{1,3})\\)|(do(n't)?\\(\\))")
-  regexp.scan(reg, line)
-  |> parse_matches(True, 0)
-}
-
 pub fn part1(lines) {
+  let assert Ok(reg) = regexp.from_string("mul\\(([0-9]{1,3}),([0-9]{1,3})\\)")
+
   lines
   |> string.join("")
-  |> get_muls
+  |> regexp.scan(reg, _)
+  |> list.map(calc_mul(_))
   |> list.fold(0, int.add)
 }
 
 pub fn part2(lines) {
-  lines
-  |> string.join("")
-  |> get_do_muls
+  let assert Ok(reg) =
+    regexp.from_string("mul\\((\\d{1,3}),(\\d{1,3})\\)|(do(n't)?\\(\\))")
+
+  let solution =
+    lines
+    |> string.join("")
+    |> regexp.scan(reg, _)
+    |> list.fold(#(True, 0), fn(acc, match) {
+      case acc.0, match.content {
+        _, "don't()" -> #(False, acc.1)
+        _, "do()" -> #(True, acc.1)
+        False, _ -> #(False, acc.1)
+        True, _ -> #(True, acc.1 + calc_mul(match))
+      }
+    })
+
+  solution.1
 }
 
 pub fn solve(input: List(String)) {
