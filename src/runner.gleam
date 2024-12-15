@@ -1,5 +1,6 @@
 import day01
 import day02
+import day03
 import gleam/int
 import gleam/list
 import gleam/result
@@ -7,9 +8,10 @@ import outputer
 
 const runners = [
   #("Historian Hysteria", day01.solve), #("Red-Nosed Reports", day02.solve),
+  #("Mull it Over", day03.solve),
 ]
 
-pub fn run(day, input) {
+pub fn run(day, input: List(String)) {
   runners
   |> list.drop(day - 1)
   |> list.first
