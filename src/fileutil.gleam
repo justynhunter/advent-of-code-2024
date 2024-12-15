@@ -12,6 +12,15 @@ pub fn read_input(day) {
   Ok(lines)
 }
 
+pub fn read_test_input(day) {
+  use file <- result.try(simplifile.read(
+    "./data/day" <> get_day_string(day) <> "_test.txt",
+  ))
+  let lines = file |> string.trim() |> string.split("\n")
+
+  Ok(lines)
+}
+
 fn get_day_string(day) {
   day
   |> int.to_string

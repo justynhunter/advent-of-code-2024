@@ -1,33 +1,36 @@
-import fileutil
 import gleam/int
 import gleam/io
 import gleam/list
-import gleam/result
 import gleam/string
 
-type ListPair {
-  ListPair(left: List(Int), right: List(Int))
+pub type LocationList {
+  LocationList(left: List(Int), right: List(Int))
 }
 
-fn lines_to_int_lists(lines) {
+fn parse_loc_lists(lines) {
   let assert [left, right] =
     lines
     |> list.map(fn(line) {
       line
       |> string.trim()
       |> string.split("   ")
-      |> list.map(fn(i) { i |> int.parse() |> result.unwrap(0) })
+      |> list.map(fn(i) {
+        case int.parse(i) {
+          Ok(num) -> num
+          Error(_) -> panic as "not an int"
+        }
+      })
     })
     |> list.transpose
 
-  ListPair(left, right)
+  LocationList(left, right)
 }
 
 pub fn part1(lines) {
-  let list_pair = lines_to_int_lists(lines)
+  let loc_list = parse_loc_lists(lines)
   list.zip(
-    list.sort(list_pair.left, int.compare),
-    list.sort(list_pair.right, int.compare),
+    list.sort(loc_list.left, int.compare),
+    list.sort(loc_list.right, int.compare),
   )
   |> list.map(fn(pair) {
     let #(left, right) = pair
@@ -37,9 +40,9 @@ pub fn part1(lines) {
 }
 
 pub fn part2(lines) {
-  let list_pair = lines_to_int_lists(lines)
-  list.fold(list_pair.left, 0, fn(acc, val) {
-    acc + list.count(list_pair.right, fn(r_val) { val == r_val }) * val
+  let loc_list = parse_loc_lists(lines)
+  list.fold(loc_list.left, 0, fn(acc, val) {
+    acc + list.count(loc_list.right, fn(r_val) { val == r_val }) * val
   })
 }
 
