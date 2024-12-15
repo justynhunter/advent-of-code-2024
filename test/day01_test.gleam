@@ -1,4 +1,6 @@
 import day01
+import fileutil
+import gleam/result
 import gleeunit
 import gleeunit/should
 
@@ -7,11 +9,13 @@ pub fn main() {
 }
 
 pub fn part1_test() {
-  day01.part1("data/day01_test.txt")
-  |> should.equal(11)
+  fileutil.read_input(1)
+  |> result.map(day01.part1)
+  |> result.map(fn(solution) { should.equal(solution, 11) })
 }
 
 pub fn part2_test() {
-  day01.part2("data/day01_test.txt")
-  |> should.equal(31)
+  fileutil.read_input(1)
+  |> result.map(day01.part2)
+  |> result.map(fn(solution) { should.equal(solution, 31) })
 }
